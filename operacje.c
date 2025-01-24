@@ -116,25 +116,36 @@ int join_msg(key_t key) {
 	return msg_id;
 }
 
-void P(int sem_id, int sem_num) {
+void sem_wait2(int sem_id, int sem_num) {
 	struct sembuf sbuf;
 	sbuf.sem_num = sem_num;
 	sbuf.sem_op = -1;
 	sbuf.sem_flg = 0;
 
-	if (semop(sem_id, &sbuf, 1) == -1) {
+	int ret;
+	do {
+		ret = semop(sem_id, &sbuf, 1);  // Wykonaj operacjê na semaforze
+	} while (ret == -1 && errno == EINTR);  // Powtarzaj, jeœli przerwano przez sygna³
+
+	if (ret == -1) {
 		perror("Operacja P nie powiodla sie!");
 		exit(1);
 	}
+
 }
 
-void V(int sem_id, int sem_num) {
+void sem_post2(int sem_id, int sem_num) {
 	struct sembuf sbuf;
 	sbuf.sem_num = sem_num;
 	sbuf.sem_op = 1;
 	sbuf.sem_flg = 0;
 
-	if (semop(sem_id, &sbuf, 1) == -1) {
+	int ret;
+	do {
+		ret = semop(sem_id, &sbuf, 1);  // Wykonaj operacjê na semaforze
+	} while (ret == -1 && errno == EINTR);  // Powtarzaj, jeœli przerwano przez sygna³
+
+	if (ret == -1) {
 		perror("Operacja V nie powiodla sie!");
 		exit(1);
 	}
