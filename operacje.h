@@ -37,6 +37,10 @@ typedef struct {
     int active_truck2;
 } Ciezarowka;
 
+typedef struct {
+    pid_t tab_prac[P];
+}Pracownik;
+
 int create_sem(key_t key);
 int create_shm(key_t key, size_t size);
 int create_msg(key_t key);
