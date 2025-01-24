@@ -41,6 +41,12 @@ typedef struct {
     pid_t tab_prac[P];
 }Pracownik;
 
+typedef struct {
+    int koniec_pracy;
+    int truck_signaled[C_COUNT];
+
+} SharedFlags;
+
 int create_sem(key_t key);
 int create_shm(key_t key, size_t size);
 int create_msg(key_t key);
