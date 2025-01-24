@@ -3,6 +3,16 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+void dequeue(Tasma* tasma) {
+
+    tasma->front = (tasma->front + 1) % C_COUNT;
+}
+
+void enqueue(Tasma* tasma, int truck_id) {
+
+    tasma->kolejnosc[tasma->rear] = truck_id;
+    tasma->rear = (tasma->rear + 1) % C_COUNT;
+}
 void* ciezarowka(void* arg) {
     int czas_transportu = *(int*)arg;
     while (1) {
@@ -13,13 +23,7 @@ void* ciezarowka(void* arg) {
     return NULL;
 }
 
-void start_ciezarowka(int id) {
-    printf("Ciê¿arówka %d rozpoczyna pracê (PID: %d)\n", id, getpid());
-    while (1) {
-        sleep(2); // Symulacja transportu
-        printf("Ciê¿arówka %d: przewozi ceg³y...\n", id);
-    }
-}
+
 
 pid_t utworz_ciezarowke(int id) {
     pid_t pid = fork();
