@@ -10,6 +10,27 @@
 #include "operacje.h"
 
 
+
+void Tasma_init(Tasma* tasma) {
+	tasma->head = 0;
+	tasma->tail = 0;
+	tasma->suma = 0;
+	tasma->count = 0;
+	tasma->front = 0;
+	tasma->rear = 0;
+	tasma->last_digit = 0;
+	tasma->active_truck = 0;
+
+	// Inicjalizacja tablicy kolejnosci i bufora
+	for (int i = 0; i < MAX_CAPACITY; i++) {
+		tasma->buffer[i] = 0;  // Ustawienie bufora na 0
+	}
+
+	for (int i = 0; i < C_COUNT; i++) {
+		tasma->kolejnosc[i] = -1;  // Ustawienie kolejnoœci na -1 (brak ciê¿arówek)
+	}
+}
+
 int create_sem(key_t key) {
 	int sem_id = semget(key, 1, IPC_CREAT|0600);
 	if (sem_id == -1) {
