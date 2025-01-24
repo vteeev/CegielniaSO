@@ -1,7 +1,7 @@
 #ifndef CIEZAROWKA_H
 #define CIEZAROWKA_H
 
-
+void signal_handler(int signum);
 // Funkcja dla ciê¿arówek
 void dequeue(Tasma* tasma);
 void enqueue(Tasma* tasma, int truck_id);

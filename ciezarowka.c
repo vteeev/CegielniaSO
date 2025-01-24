@@ -1,7 +1,35 @@
-#include "cegielnia.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <sys/sem.h>
+#include <sys/wait.h>
+#include <time.h>
+#include <sys/types.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+#include <unistd.h>
+#include <semaphore.h>
+//#include "operacje.c"
+#include "operacje.h"
+#include "dyspozytor.h"
+#include <string.h>
+int odjazd = 0;
+
+SharedFlags* flaga;
+
+void signal_handler(int signum) {
+    if (signum == SIGUSR1) {
+        printf("\n\n\nCiê¿arówka %d otrzyma³a sygna³ SIGUSR1. Odje¿d¿a z obecnym ³adunkiem.\n\n\n\n", getpid());
+        odjazd = 1; // Flaga odjazdu
+    }
+    else if (signum == SIGUSR2) {
+        printf("\n\n\nCiê¿arówka %d otrzyma³a sygna³ SIGUSR2. Koniec pracy\n\n\n\n", getpid());
+        flaga->koniec_pracy = 1; // Flaga odjazdu
+    }
+}
 
 void dequeue(Tasma* tasma) {
 
