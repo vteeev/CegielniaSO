@@ -34,3 +34,43 @@ pid_t utworz_pracownika(int id) {
     }
     return pid; // Zwracamy PID procesu dziecka do procesu rodzica
 }
+
+int main() {
+
+    key_t key_m = ftok("/bin/ls", 'R');
+    int shmid1 = shmget(key_m, sizeof(Tasma), IPC_CREAT | 0600);
+    if (shmid1 == -1) {
+        perror("shmget");
+        exit(1);
+    }
+    Tasma* tasma = (Tasma*)shmat(shmid1, NULL, 0);
+    if (tasma == (void*)-1) {
+        perror("shmat");
+        exit(1);
+    }
+
+    key_t key_m3 = ftok("/bin/ls", 'F');
+    int shmid3 = shmget(key_m3, sizeof(SharedFlags), IPC_CREAT | 0600);
+    if (shmid3 == -1) {
+        perror("shmget");
+        exit(1);
+    }
+    SharedFlags* shared_f = (SharedFlags*)shmat(shmid3, NULL, 0);
+    if (shared_f == (void*)-1) {
+        perror("shmat");
+        exit(1);
+    }
+
+    key_t key_m4 = ftok("/bin/ls", 'P');
+    int shmid4 = shmget(key_m4, sizeof(Pracownik), IPC_CREAT | 0600);
+    if (shmid4 == -1) {
+        perror("shmget");
+        exit(1);
+    }
+    Pracownik* prac = (Pracownik*)shmat(shmid4, NULL, 0);
+    if (shared_f == (void*)-1) {
+        perror("shmat");
+        exit(1);
+    }
+
+}
