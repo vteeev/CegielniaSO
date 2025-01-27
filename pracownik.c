@@ -12,27 +12,53 @@ void *pracownik(void *arg) {
     return NULL;
 }
 
-void start_pracownik(int id) {
-    printf("Pracownik %d rozpoczyna pracê (PID: %d)\n", id, getpid());
-    while (1) {
-        sleep(1); // Symulacja pracy
-        printf("Pracownik %d: produkuje ceg³y...\n", id);
-    }
-}
+void pracownik(Tasma* tasma, SharedFlags* shared_f, Pracownik* prac, int i, int semID, pid_t prac_pid) {
 
-// Funkcja do tworzenia procesu pracownika
-pid_t utworz_pracownika(int id) {
-    pid_t pid = fork(); // Tworzenie nowego procesu
-    if (pid == 0) {
-        // Kod wykonywany przez proces dziecka
-        start_pracownik(id);
-        exit(0); // Bezpieczne zakoñczenie procesu dziecka po pracy
+    srand(time(NULL) ^ getpid());
+    flaga = shared_f;
+    signal(SIGUSR2, signal_handler);
+
+    sem_wait2(semID, 0);
+    prac->tab_prac[i] = getpid();
+    //printf("hahaha %d\n", prac->tab_prac[i]);
+    sem_post2(semID, 0);
+    int x;
+    int c;
+
+
+    sleep(3);
+    while (1) {
+        c = rand() % 3 + 1; // Losowanie liczby 1, 2 lub 3
+
+        sem_wait2(semID, 5); // liczni count Tasmy
+        for (int j = 0; j < c; j++) {
+            sem_wait2(semID, 2); // licznik masy Tasmy
+
+        }
+
+        sem_wait2(semID, 1);
+        tasma->buffer[tasma->tail] = c;
+        tasma->tail = (tasma->tail + 1) % MAX_CAPACITY;
+        tasma->count += 1;
+        tasma->suma += c;
+        printf("\033[32mP[%d] Dodal: %d  count_t: %d masa_t: %d/%d\033[0m\n", i, c, tasma->count, tasma->suma, N);
+        sem_post2(semID, 1);
+        sem_post2(semID, 3);
+
+
+        // Losowe opóŸnienie miêdzy 0 a 100 ms
+
+        sem_wait2(semID, 0);
+        if (shared_f->koniec_pracy_pracownikow == 1) {
+
+            printf("\tPRACOWNIK[%d] KONCZY PRACE\n", i);
+            sem_post2(semID, 0);
+
+
+            exit(0);
+        }
+        sem_post2(semID, 0);//1 //2
     }
-    else if (pid < 0) {
-        // Obs³uga b³êdu, jeœli fork() siê nie powiód³
-        perror("Nie uda³o siê utworzyæ procesu pracownika");
-    }
-    return pid; // Zwracamy PID procesu dziecka do procesu rodzica
 }
 
 int main() {
