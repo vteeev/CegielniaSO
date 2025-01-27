@@ -73,4 +73,38 @@ int main() {
         exit(1);
     }
 
+    key_t key_s = ftok("/bin/ls", 'S');
+    int semID = semget(key_s, 10, IPC_CREAT | 0666); // 8 semaforów
+    if (semID == -1) {
+        perror("semget");
+        exit(1);
+    }
+    Tasma_init(tasma);
+
+    pid_t prac_pid[P];
+    for (int i = 0; i < P; i++) {
+        pid_t pid = fork();
+        prac_pid[i] = pid;
+        if (pid == 0) {
+            printf("%d\n", getpid());
+            // Proces "pracownik"
+            //monitoruj_klawisze();
+            pracownik(tasma, shared_f, prac, i, semID, prac_pid[i]);
+            exit(0);
+        }
+    }
+    //monitoruj_klawisze();
+    //kontroluj_sygnal2(prac_pid);
+
+    for (int i = 0; i < P; i++) {
+        wait(NULL);
+    }
+
+
+
+    shmdt(prac);
+    shmdt(shared_f);
+    shmdt(tasma);
+
+    return 0;
 }
