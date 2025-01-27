@@ -124,8 +124,44 @@ int main()
         perror("semget");
         exit(1);
     }
+    key_t key_msg = ftok("/bin/ls", 'M');
+    int msgid = msgget(key_msg, IPC_CREAT | 0600);
+    if (msgid == -1) {
+        fprintf(stderr, "message failed with error:%d\n", errno);
+        exit(EXIT_FAILURE);
+    }
+
+    //ustaw_handler();
+    tasma->front = 0;
+    tasma->rear = 0;
+    for (int i = 0; i < C_COUNT; i++) {
+        tasma->kolejnosc[i] = -1;  // Pocz¹tkowo kolejnoœæ jest pusta
+    }
+    for (int i = 0; i < C_COUNT; i++) {
+        shared_f->truck_signaled[i] = 0;  // Ustawienie pocz¹tkowe na 0
+    }
+    shared_f->koniec_pracy_ciezarowki = 0;
+    shared_f->koniec_pracy_pracownikow = 0;
+    shared_f->odjazd = 0;
 
 
+    pid_t truck_pids[C_COUNT];
+    for (int i = 0; i < C_COUNT; i++) {
+        truck_pids[i] = fork();
+        if (truck_pids[i] == 0) {
+
+            truck_process(i, tasma, ciezarowka, shared_f, semID, msgid);
+
+            exit(0);
+        }
+        else if (truck_pids[i] > 0) {
+        }
+
+    }
+
+    for (int i = 0; i < (C_COUNT); i++) {
+        wait(NULL);
+    }
 
     shmdt(tasma);  // Od³¹czenie pamiêci dzielonej
     shmdt(ciezarowka);
@@ -134,3 +170,4 @@ int main()
 
     //shmctl(shmid, IPC_RMID, NULL);//usuniecie
     return 0;
+}
