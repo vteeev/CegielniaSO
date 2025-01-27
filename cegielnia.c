@@ -88,4 +88,62 @@ int main() {
     semctl(semID, 8, SETVAL, 1);
     semctl(semID, 9, SETVAL, 0);
 
+    switch (fork()) {
+    case -1:
+        printf("Blad fork (mainprog)\n");
+        exit(2);
+    case 0:
+        //printf("hallo\n");
+        if (execl("./pracownik", "pracownik", NULL) == -1) {  // Check execl error
+            perror("execl failed");
+            exit(1);
+        }
+        break;  // Just to be safe in case of non-termination in child
+    }
+
+    // Drugi fork
+    switch (fork()) {
+    case -1:
+        printf("Blad fork (mainprog)\n");
+        exit(2);
+    case 0:
+        //printf("hallo\n");
+        if (execl("./ciezarowka", "ciezarowka", NULL) == -1) {  // Check execl error
+            perror("execl failed");
+            exit(1);
+        }
+        break;  // Just to be safe in case of non-termination in child
+    }
+    switch (fork()) {
+    case -1:
+        printf("Blad fork (mainprog)\n");
+        exit(2);
+    case 0:
+        //printf("hallo\n");
+        if (execl("./dyspozytor", "dyspozytor", NULL) == -1) {  // Check execl error
+            perror("execl failed");
+            exit(1);
+        }
+        break;  // Just to be safe in case of non-termination in child
+    }
+
+    for (int i = 0; i < 3; i++) {
+        wait(NULL);
+    }
+
+
+
+
+    semctl(semID, 0, IPC_RMID, NULL);
+    shmctl(shmid1, IPC_RMID, NULL);
+    shmctl(shmid2, IPC_RMID, NULL);
+    shmctl(shmid3, IPC_RMID, NULL);
+    shmctl(shmid4, IPC_RMID, NULL);
+    //shmctl(shmid3, IPC_RMID, NULL);  // Usuwa segment pamiêci wspó³dzielonej
+    //shmctl(shmid2, IPC_RMID, NULL);  // Usuwa segment pamiêci wspó³dzielonej
+
+
+
+    printf("MAIN: Koniec.\n");
+
 }
