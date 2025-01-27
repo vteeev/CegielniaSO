@@ -52,18 +52,34 @@ void* ciezarowka(void* arg) {
 }
 
 
+void truck_process(int truck_id, Tasma* shared_buffer, Ciezarowka* ciezarowka, SharedFlags* shared_f, int semID, int msgid)
+{
+    srand(time(NULL) ^ ((truck_id + 1) * 69 << 16));
+    //init_signal_handling();
+    flaga = shared_f;
+    signal(SIGUSR1, signal_handler);
+    signal(SIGUSR2, signal_handler);
 
-pid_t utworz_ciezarowke(int id) {
-    pid_t pid = fork();
-    if (pid == 0) {
-        start_ciezarowka(id);
-        exit(0); // Proces dziecka koñczy pracê po zakoñczeniu funkcji
-    }
-    else if (pid < 0) {
-        perror("Nie uda³o siê utworzyæ procesu ciê¿arówki");
-    }
-    return pid;
+
+    sem_wait2(semID, 7);
+    shared_buffer->kolejnosc[shared_buffer->rear] = truck_id;
+    shared_buffer->rear = (shared_buffer->rear + 1) % C_COUNT;
+    ciezarowka->trucks[truck_id] = getpid();
+    printf("\t\t\t\t\t\t%d\n", truck_id);
+    //printf("\tHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH\n");
+    sem_post2(semID, 7);
+    sleep(2);
+    int x;//usleep
+    int load;
+    int liczba;
+    int czas_oczekiwania;
+    struct my_msg some_data;
+    char msg1[MAX_TEXT] = "\t\t\t\tCIEZAROWKA ODJECHALA Z LADUNKIEM\n";
+    char msg2[MAX_TEXT] = "\t\t\t\tCIEZAROWKA PRZYJECHALA PUSTA\n";
+
+    
 }
+
 
 int main()
 {
