@@ -41,15 +41,7 @@ void enqueue(Tasma* tasma, int truck_id) {
     tasma->kolejnosc[tasma->rear] = truck_id;
     tasma->rear = (tasma->rear + 1) % C_COUNT;
 }
-void* ciezarowka(void* arg) {
-    int czas_transportu = *(int*)arg;
-    while (1) {
-        int ladunek = zdejmij_cegle(C);
-        printf("Ciê¿arówka odje¿d¿a z ³adunkiem: %d\n", ladunek);
-        sleep(czas_transportu);
-    }
-    return NULL;
-}
+
 
 
 void truck_process(int truck_id, Tasma* shared_buffer, Ciezarowka* ciezarowka, SharedFlags* shared_f, int semID, int msgid)
