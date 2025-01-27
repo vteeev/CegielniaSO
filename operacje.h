@@ -10,12 +10,17 @@
 
 // Sta³
 
-#define N 40
-#define P 3
+#define N 40              //MAX obci¹¿enie taœmy
+#define P 3             //Pracownicy
 #define MAX_CAPACITY 20  // Pojemnoœæ taœmy
-#define C_COUNT 100
-#define SLEEP_TIME 20     // Czas uœpienia ciê¿arówki po odjeŸdzie
+#define C_COUNT 100     //liczba Cie¿arówek
 #define CIEZAROWKA_LIMIT 1000  // Limit masy dla ciezarowki
+
+//kolejka komunik
+#define MAX_TEXT 50
+#define C_ODJAZD 1
+#define C_PRZYJAZD 2
+
 // Struktura Taœma (przechowuj¹ca dane i synchronizuj¹ca procesy)
 typedef struct {
     int buffer[MAX_CAPACITY];  // Tablica przechowuj¹ca dane
@@ -47,6 +52,11 @@ typedef struct {
 
 } SharedFlags;
 
+struct my_msg {
+    long int msg_type;
+    char text[MAX_TEXT];
+};
+
 void Tasma_init(Tasma* tasma);
 
 int create_sem(key_t key);
@@ -60,6 +70,6 @@ int join_shm(key_t key);
 int join_msg(key_t key);
 void sem_wait2(int sem_id, int sem_num);
 void sem_post2(int sem_id, int sem_num);
-void print_single_order(int id);
+
 
 #endif // OPERACJE_H
