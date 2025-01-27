@@ -77,6 +77,97 @@ void truck_process(int truck_id, Tasma* shared_buffer, Ciezarowka* ciezarowka, S
     char msg1[MAX_TEXT] = "\t\t\t\tCIEZAROWKA ODJECHALA Z LADUNKIEM\n";
     char msg2[MAX_TEXT] = "\t\t\t\tCIEZAROWKA PRZYJECHALA PUSTA\n";
 
+    while (1)
+    {
+        load = 0;
+        shared_f->truck_signaled[truck_id] = 0;
+        sem_wait2(semID, 4);
+        if (shared_f->koniec_pracy_ciezarowki == 1 && shared_buffer->count == 0) {
+
+            printf("KONIEC PRACY CIEZAROWKI[%d]\n", truck_id);
+            sem_post2(semID, 4);
+
+            //7)
+            exit(2);
+        }
+        ciezarowka->active_truck2 = truck_id;
+
+        // 6)
+
+
+        while (load < CIEZAROWKA_LIMIT) {
+            //5)                    
+            if (shared_f->odjazd == 1) {
+                printf("Ciê¿arówka %d odje¿d¿a z ³adunkiem %d (wczeœniejszy sygna³ SIGUSR1).\n", truck_id, load);
+                shared_f->odjazd = 0; // Reset flagi
+
+                break;
+            }
+
+
+            //printf("helll-przed\n");
+            //4)                           
+
+            sem_wait2(semID, 3);
+            //printf("helll-przed2\n");
+
+            sem_wait2(semID, 1);
+            if ((load + shared_buffer->buffer[shared_buffer->head]) > CIEZAROWKA_LIMIT) {
+                sem_post2(semID, 1);
+                //sem_post2(semID, 5);
+                sem_post2(semID, 3);
+                break;
+            }
+            liczba = shared_buffer->buffer[shared_buffer->head];
+            shared_buffer->head = (shared_buffer->head + 1) % MAX_CAPACITY;
+
+            shared_buffer->count -= 1;
+            shared_buffer->suma -= liczba;
+            load += liczba;
+            //3)                       
+            for (int i = 0; i < liczba; i++) {
+                sem_post2(semID, 2); // Zmniejsza wartoœæ semafora
+            }
+            sem_post2(semID, 1);
+            sem_post2(semID, 5);
+
+            //tutaj 1)
+            //printf("helll-po\n");
+            printf("\033[34m\tCiê¿arówka%d odbiera %d, Suma: %d/%d\033[0m\n", truck_id, liczba, load, CIEZAROWKA_LIMIT);
+            if (shared_buffer->count == 0) {
+                if (shared_f->koniec_pracy_ciezarowki == 1) {
+
+                    printf("JESZCZE MUSZE ODWIEZC CEGLY[%d]\n", truck_id);
+
+                    break;
+                }
+            }
+            else {
+                //printf("NIE\n");
+            }
+            //x=rand() %10000;
+            //usleep(x);
+
+//2)
+
+        }
+        shared_f->truck_signaled[truck_id] = 1;
+        shared_buffer->front = (shared_buffer->front + 1) % C_COUNT;
+        printf("\033[31m\t\t\tCiê¿arówka %d odje¿d¿a z ³adunkiem %d/%d\033[0m\n", truck_id, load, CIEZAROWKA_LIMIT);
+
+
+        sem_post2(semID, 4);
+
+        czas_oczekiwania = rand() % +5 + 1;
+        sleep(czas_oczekiwania);
+        //semctl(semID, 9, SETVAL, CIEZAROWKA_LIMIT);//jesli ciezarowka odjedzie resetujemy semafor
+        sem_wait2(semID, 7);
+
+        shared_buffer->kolejnosc[shared_buffer->rear] = truck_id;
+        shared_buffer->rear = (shared_buffer->rear + 1) % C_COUNT;// Przesuwamy wskaŸnik rear
+        // Resetujemy status ciê¿arówki po jej zakoñczeniu
+        printf("\033[30;41m\t\t\t\t\t\n[[[[[Ciê¿arówka %d wróci³a i jest gotowa do pracy]]]]]\033[0m\n\n", truck_id);
+        sem_post2(semID, 7);
     
 }
 
